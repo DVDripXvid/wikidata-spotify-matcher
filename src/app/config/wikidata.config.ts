@@ -10,6 +10,9 @@ export const propertyIds = {
 };
 
 export const classIds = {
+    human: 'Q5',
     song: 'Q7366',
+    studioAlbum: 'Q208569',
+    album: 'Q482994',
 };
 
