@@ -23,16 +23,15 @@ export class AppComponent {
       .then(me => this.username = me.display_name);
   }
 
-  private configureSpotifyAuth() {
+  private async configureSpotifyAuth() {
     this.oauthService.configure(spotifyAuthConfig);
     this.oauthService.setStorage(sessionStorage);
-    return this.oauthService.tryLogin().then((isSuccess) => {
-      if (isSuccess) {
-        spotify.setAccessToken(this.oauthService.getAccessToken());
-      } else {
-        this.oauthService.initImplicitFlow();
-      }
-    });
+    const isSuccess = await this.oauthService.tryLogin();
+    if (isSuccess) {
+      spotify.setAccessToken(this.oauthService.getAccessToken());
+    } else {
+      this.oauthService.initImplicitFlow();
+    }
   }
 
 }

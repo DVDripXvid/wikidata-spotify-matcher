@@ -7,4 +7,4 @@ export const spotifyAuthConfig: AuthConfig = {
   scope: 'user-library-read',
   responseType: 'token',
   oidc: false,
-}
+};

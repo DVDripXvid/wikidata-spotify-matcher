@@ -3,7 +3,7 @@ export class ByIdQueryOptions {
     ids: string[];
     languages?: string[] = ['en'];
     props?: string[] = ['info', 'claims', 'id', 'descriptions', 'labels'];
-    format?: string = 'json';
+    format = 'json';
 }
 
 export interface WdkEntity {

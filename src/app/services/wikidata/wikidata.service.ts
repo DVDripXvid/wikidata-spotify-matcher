@@ -22,21 +22,19 @@ export class WikidataService {
     return this.getEntityByClaim(propertyIds.spotifyAlbumId, spotifyId);
   }
 
-  private getEntityByClaim(claimId: string, claimValue: string): Promise<WdkEntity> {
-    return this.getEntitiesByClaim(claimId, claimValue)
-      .then(result => {
-        if (!result.ids || result.ids.length == 0) {
-          return null;
-        }
-        if (result.ids.length > 1) {
-          console.warn(`multiple match when calling getEntityByClaim. claimId: ${claimId},claimValue: ${claimValue}`)
-          console.warn(result);
-        }
-        return result.entities[result.ids[0]];
-      });
+  private async getEntityByClaim(claimId: string, claimValue: string): Promise<WdkEntity> {
+    const result = await this.getEntitiesByClaim(claimId, claimValue);
+    if (!result.ids || result.ids.length === 0) {
+      return null;
+    }
+    if (result.ids.length > 1) {
+      console.warn(`multiple match when calling getEntityByClaim. claimId: ${claimId},claimValue: ${claimValue}`);
+      console.warn(result);
+    }
+    return result.entities[result.ids[0]];
   }
 
-  private getEntitiesByClaim(claimId: string, claimValue: string)
+  private async getEntitiesByClaim(claimId: string, claimValue: string)
     : Promise<{
       ids: string[],
       entities: WdkEntity[];
@@ -45,33 +43,27 @@ export class WikidataService {
     const resultWrapper = {
       ids: null,
       entities: null,
+    };
+    const body = await this.getJson(url);
+    const ids = wdk.simplify.sparqlResults(body);
+    if (ids.length === 0) {
+      return null;
     }
-    return this.getJson(url)
-      .then(body => wdk.simplify.sparqlResults(body))
-      .then((ids: string[]) => {
-        if (ids.length == 0) {
-          return null;
-        }
-        resultWrapper.ids = ids;
-        const query = new ByIdQueryOptions();
-        query.ids = ids;
-        const queryUrl = wdk.getEntities(query);
-        return this.getJson(queryUrl);
-      })
-      .then(result => {
-        resultWrapper.entities = wdk.simplify.entities(result.entities);
-        return resultWrapper;
-      });
+    resultWrapper.ids = ids;
+    const query = new ByIdQueryOptions();
+    query.ids = ids;
+    const queryUrl = wdk.getEntities(query);
+    const result = await this.getJson(queryUrl);
+    resultWrapper.entities = wdk.simplify.entities(result.entities);
+    return resultWrapper;
   }
 
-  private getJson(url: string) {
-    return fetch(url)
-      .then(resp => {
-        if (resp.ok) {
-          return resp.json();
-        } else {
-          throw `${resp.status}: ${resp.statusText}`
-        }
-      });
+  private async getJson(url: string) {
+    const resp = await fetch(url);
+    if (resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error(`${resp.status}: ${resp.statusText}`);
+    }
   }
 }

@@ -7,4 +7,4 @@ export const propertyIds = {
     spotifyTrackId: 'P2207',
     spotifyAlbumId: 'P2205',
     spotifyArtistId: 'P1902',
-}
+};
