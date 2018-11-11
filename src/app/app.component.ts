@@ -15,9 +15,10 @@ export class AppComponent {
 
   constructor(
     private oauthService: OAuthService,
-    private wikidata: WikidataService) {
-
-    wikidata.getArtistBySpotifyId('7dGJo4pcD2V6oG8kP0tJRR').then(eminem => console.log(eminem));
+    private wikidata: WikidataService
+  ) {
+    wikidata.findSongsByTitle('Another Brick in the Wall').then(songs => console.log(songs));
+    wikidata.getArtistBySpotifyId('7dGJo4pcD2V6oG8kP0tJRR').then(artist => console.log(artist));
     this.configureSpotifyAuth()
       .then(() => spotify.getMe())
       .then(me => this.username = me.display_name);

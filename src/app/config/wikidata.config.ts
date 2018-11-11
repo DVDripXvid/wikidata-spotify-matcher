@@ -8,3 +8,8 @@ export const propertyIds = {
     spotifyAlbumId: 'P2205',
     spotifyArtistId: 'P1902',
 };
+
+export const classIds = {
+    song: 'Q7366',
+};
+

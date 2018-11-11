@@ -2,6 +2,7 @@ import { ByIdQueryOptions, WdkEntity } from './../../models/wikidata-models';
 import { Injectable } from '@angular/core';
 import wdk from 'wikidata-sdk';
 import { propertyIds } from '../../config/wikidata.config';
+import { findSongsByTitleSparql } from './sparql-queries';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,23 @@ export class WikidataService {
 
   getAlbumBySpotifyId(spotifyId: string) {
     return this.getEntityByClaim(propertyIds.spotifyAlbumId, spotifyId);
+  }
+
+  async findSongsByTitle(title: string) {
+    const sparql = findSongsByTitleSparql(title);
+    const ids: string[] = await this.executeSparql(sparql);
+    if (ids.length === 0) {
+      console.warn('song not found with title: ' + title);
+      return null;
+    }
+    const entities = await this.getEntities(new ByIdQueryOptions(ids));
+    return Object.values(entities);
+  }
+
+  private async executeSparql(sparql: string) {
+    const url = wdk.sparqlQuery(sparql);
+    const results = await this.getJson(url);
+    return wdk.simplifySparqlResults(results);
   }
 
   private async getEntityByClaim(claimId: string, claimValue: string): Promise<WdkEntity> {
@@ -50,12 +68,15 @@ export class WikidataService {
       return null;
     }
     resultWrapper.ids = ids;
-    const query = new ByIdQueryOptions();
-    query.ids = ids;
-    const queryUrl = wdk.getEntities(query);
-    const result = await this.getJson(queryUrl);
-    resultWrapper.entities = wdk.simplify.entities(result.entities);
+    const query = new ByIdQueryOptions(ids);
+    resultWrapper.entities = await this.getEntities(query);
     return resultWrapper;
+  }
+
+  private async getEntities(query: ByIdQueryOptions) {
+    const queryUrl = wdk.getEntities(query);
+    const results = await this.getJson(queryUrl);
+    return wdk.simplify.entities(results.entities);
   }
 
   private async getJson(url: string) {
