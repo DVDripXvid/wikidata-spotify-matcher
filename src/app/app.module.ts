@@ -8,6 +8,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 import { OAuthModule } from 'angular-oauth2-oidc';
+import { MaterialModule } from './material/material.module';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { OAuthModule } from 'angular-oauth2-oidc';
     BrowserAnimationsModule,
     HttpClientModule,
     OAuthModule.forRoot(),
-    AppRoutingModule
+    AppRoutingModule,
+    MaterialModule
   ],
   providers: [],
   bootstrap: [AppComponent]
