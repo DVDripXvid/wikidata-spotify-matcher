@@ -3,6 +3,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -17,12 +18,13 @@ import { VirtualScrollerModule } from 'ngx-virtual-scroller';
   declarations: [
     AppComponent,
     LibraryTreeComponent,
-    HomeComponent
+    HomeComponent,
   ],
   imports: [
     BrowserModule,
     VirtualScrollerModule,
     BrowserAnimationsModule,
+    FormsModule,
     MaterialModule,
     HttpClientModule,
     OAuthModule.forRoot(),

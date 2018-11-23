@@ -12,6 +12,7 @@ export const propertyIds = {
 export const classIds = {
     human: 'Q5',
     song: 'Q7366',
+    single: 'Q134556', // a lot track instance of single and not instance of song :(
     studioAlbum: 'Q208569',
     album: 'Q482994',
 };

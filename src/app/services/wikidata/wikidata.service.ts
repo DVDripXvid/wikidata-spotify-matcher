@@ -27,11 +27,16 @@ export class WikidataService {
     const sparql = findSongsByTitleSparql(title);
     const ids: string[] = await this.executeSparql(sparql);
     if (ids.length === 0) {
-      console.warn('song not found with title: ' + title);
       return null;
     }
     const entities = await this.getEntities(new ByIdQueryOptions(ids));
     return Object.values(entities);
+  }
+
+  async getEntities(query: ByIdQueryOptions): Promise<WdkEntity[]> {
+    const queryUrl = wdk.getEntities(query);
+    const results = await this.getJson(queryUrl);
+    return wdk.simplify.entities(results.entities);
   }
 
   private async executeSparql(sparql: string) {
@@ -65,18 +70,12 @@ export class WikidataService {
     const body = await this.getJson(url);
     const ids = wdk.simplify.sparqlResults(body);
     if (ids.length === 0) {
-      return null;
+      return resultWrapper;
     }
     resultWrapper.ids = ids;
     const query = new ByIdQueryOptions(ids);
     resultWrapper.entities = await this.getEntities(query);
     return resultWrapper;
-  }
-
-  private async getEntities(query: ByIdQueryOptions) {
-    const queryUrl = wdk.getEntities(query);
-    const results = await this.getJson(queryUrl);
-    return wdk.simplify.entities(results.entities);
   }
 
   private async getJson(url: string) {

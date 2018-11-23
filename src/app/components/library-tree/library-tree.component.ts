@@ -1,5 +1,5 @@
-import { ArtistWithAlbums } from './../../models/spotify-models';
-import { Component, OnInit } from '@angular/core';
+import { ArtistWithAlbums, AlbumWithTracks } from './../../models/spotify-models';
+import { Component, OnInit, Output, EventEmitter, AfterViewChecked } from '@angular/core';
 import { spotify } from 'src/app/config/spotify-api.config';
 import { Library } from 'src/app/models/spotify-models';
 
@@ -8,17 +8,66 @@ import { Library } from 'src/app/models/spotify-models';
   templateUrl: './library-tree.component.html',
   styleUrls: ['./library-tree.component.sass']
 })
-export class LibraryTreeComponent implements OnInit {
+export class LibraryTreeComponent implements OnInit, AfterViewChecked {
+
+  selectedArtist: ArtistWithAlbums;
+  selectedAlbum: AlbumWithTracks;
+  artistSearchTerm = '';
 
   isLoading = false;
   library: ArtistWithAlbums[] = [];
   tracks: SpotifyApi.TrackObjectFull[] = [];
+  @Output() trackSelected = new EventEmitter<SpotifyApi.TrackObjectFull>();
+
+  private unfilteredLibrary: ArtistWithAlbums[];
+  private viewCheckedCallback: any;
 
   async ngOnInit() {
     this.isLoading = true;
     this.tracks = await this.getFullLibrary();
-    this.library = this.groupByArtistAndAlbum(this.tracks);
+    this.unfilteredLibrary = this.groupByArtistAndAlbum(this.tracks);
+    this.library = [...this.unfilteredLibrary];
     this.isLoading = false;
+  }
+
+  ngAfterViewChecked(): void {
+    if (typeof this.viewCheckedCallback === 'function') {
+      this.viewCheckedCallback();
+    }
+  }
+
+  private waitForUpdate() {
+    return new Promise((resolve, _reject) => {
+      this.viewCheckedCallback = resolve;
+    });
+  }
+
+  artistClicked(artist: ArtistWithAlbums) {
+    this.waitForUpdate().then(this.scrollToTheRight);
+    this.selectedArtist = artist;
+    if (artist.albums.length === 1) {
+      this.selectedAlbum = artist.albums[0];
+    } else {
+      this.selectedAlbum = null;
+    }
+  }
+
+  albumClicked(album: AlbumWithTracks) {
+    this.waitForUpdate().then(this.scrollToTheRight);
+    this.selectedAlbum = album;
+  }
+
+  trackClicked(track: SpotifyApi.TrackObjectFull) {
+    this.trackSelected.emit(track);
+  }
+
+  filterArtists(term: string) {
+    this.artistSearchTerm = term;
+    if (!term) {
+      return;
+    }
+    this.library = this.unfilteredLibrary
+      .filter(a => a.name.toLowerCase().includes(term.toLowerCase()));
   }
 
   private groupByArtistAndAlbum(library: SpotifyApi.TrackObjectFull[]): Library {
@@ -67,6 +116,14 @@ export class LibraryTreeComponent implements OnInit {
       console.error(error);
     }
     return library.map(t => t.track);
+  }
+
+  private scrollToTheRight() {
+    window.scrollTo({
+      top: 0,
+      left: window.outerWidth,
+      behavior: 'smooth',
+    });
   }
 
 }

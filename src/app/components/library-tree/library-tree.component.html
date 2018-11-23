@@ -1,33 +1,45 @@
 <div *ngIf="isLoading">
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-  <h3>Please be patient while we are preparing your spotify library</h3>
+  <h3>Please be patient while we are getting your spotify library</h3>
 </div>
-<div *ngIf="!isLoading">
-  <mat-accordion>
-    <virtual-scroller #scroll [items]="library">
-      <mat-expansion-panel *ngFor="let artist of scroll.viewPortItems">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            {{artist.name}}
-          </mat-panel-title>
-          <mat-panel-description>
-            Wikidata search not started yet
-          </mat-panel-description>
-        </mat-expansion-panel-header>
-        <mat-expansion-panel *ngFor="let album of artist.albums">
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              {{album.name}}
-            </mat-panel-title>
-            <mat-panel-description>
-              {{album.release_date}}
-            </mat-panel-description>
-          </mat-expansion-panel-header>
-          <mat-action-list>
-            <button *ngFor="let track of album.tracks" mat-list-item (click)="console.log(track.popularity)">{{track.name}}</button>
-          </mat-action-list>
-        </mat-expansion-panel>
-      </mat-expansion-panel>
-    </virtual-scroller>
-  </mat-accordion>
+<div *ngIf="!isLoading" class="row">
+  <div class="column">
+    <mat-card>
+      <mat-card-header>
+        <form>
+          <mat-form-field>
+            <input matInput placeholder="Type to filter artists" [ngModel]="artistSearchTerm" (ngModelChange)="filterArtists($event)"
+              name="artistSearchTerm">
+          </mat-form-field>
+        </form>
+      </mat-card-header>
+      <mat-action-list>
+        <virtual-scroller #scroll [items]="library">
+          <button *ngFor="let artist of scroll.viewPortItems" mat-list-item (click)="artistClicked(artist)">{{artist.name}}</button>
+        </virtual-scroller>
+      </mat-action-list>
+    </mat-card>
+  </div>
+  <div class="column" *ngIf="selectedArtist">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{selectedArtist.name}}</mat-card-title>
+        <mat-card-subtitle>ARTIST</mat-card-subtitle>
+      </mat-card-header>
+      <mat-action-list>
+        <button *ngFor="let album of selectedArtist.albums" mat-list-item (click)="albumClicked(album)">{{album.name}}</button>
+      </mat-action-list>
+    </mat-card>
+  </div>
+  <div class="column" *ngIf="selectedAlbum">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{selectedAlbum.name}}</mat-card-title>
+        <mat-card-subtitle>ALBUM</mat-card-subtitle>
+      </mat-card-header>
+      <mat-action-list>
+        <button *ngFor="let track of selectedAlbum.tracks" mat-list-item (click)="trackClicked(track)">{{track.name}}</button>
+      </mat-action-list>
+    </mat-card>
+  </div>
 </div>
