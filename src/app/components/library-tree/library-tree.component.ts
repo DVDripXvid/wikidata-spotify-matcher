@@ -1,3 +1,4 @@
+import { ArtistWithAlbums } from './../../models/spotify-models';
 import { Component, OnInit } from '@angular/core';
 import { spotify } from 'src/app/config/spotify-api.config';
 import { Library } from 'src/app/models/spotify-models';
@@ -8,13 +9,16 @@ import { Library } from 'src/app/models/spotify-models';
   styleUrls: ['./library-tree.component.sass']
 })
 export class LibraryTreeComponent implements OnInit {
-  constructor() { }
+
+  isLoading = false;
+  library: ArtistWithAlbums[] = [];
+  tracks: SpotifyApi.TrackObjectFull[] = [];
 
   async ngOnInit() {
-    const tracks = await this.getFullLibrary();
-    console.warn(tracks);
-    const library = this.groupByArtistAndAlbum(tracks);
-    console.warn(library);
+    this.isLoading = true;
+    this.tracks = await this.getFullLibrary();
+    this.library = this.groupByArtistAndAlbum(this.tracks);
+    this.isLoading = false;
   }
 
   private groupByArtistAndAlbum(library: SpotifyApi.TrackObjectFull[]): Library {

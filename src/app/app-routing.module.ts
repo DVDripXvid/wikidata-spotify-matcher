@@ -4,7 +4,6 @@ import { LibraryTreeComponent } from './components/library-tree/library-tree.com
 import { HomeComponent } from './components/home/home.component';
 
 const routes: Routes = [
-  { path: 'library', component: LibraryTreeComponent },
   { path: '', component: HomeComponent },
 ];
 

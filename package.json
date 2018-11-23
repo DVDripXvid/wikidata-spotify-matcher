@@ -25,6 +25,7 @@
     "angular-oauth2-oidc": "^5.0.2",
     "core-js": "^2.5.4",
     "hammerjs": "^2.0.8",
+    "ngx-virtual-scroller": "^1.0.12",
     "rxjs": "~6.3.3",
     "spotify-web-api-js": "^1.1.1",
     "wikidata-edit": "^2.7.0",

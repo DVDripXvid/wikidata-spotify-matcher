@@ -11,7 +11,7 @@ import { OAuthModule } from 'angular-oauth2-oidc';
 import { MaterialModule } from './material/material.module';
 import { LibraryTreeComponent } from './components/library-tree/library-tree.component';
 import { HomeComponent } from './components/home/home.component';
-
+import { VirtualScrollerModule } from 'ngx-virtual-scroller';
 
 @NgModule({
   declarations: [
@@ -21,11 +21,12 @@ import { HomeComponent } from './components/home/home.component';
   ],
   imports: [
     BrowserModule,
+    VirtualScrollerModule,
     BrowserAnimationsModule,
+    MaterialModule,
     HttpClientModule,
     OAuthModule.forRoot(),
     AppRoutingModule,
-    MaterialModule
   ],
   providers: [],
   bootstrap: [AppComponent]

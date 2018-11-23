@@ -1,3 +1,33 @@
-<p>
-  library-tree works!
-</p>
+<div *ngIf="isLoading">
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  <h3>Please be patient while we are preparing your spotify library</h3>
+</div>
+<div *ngIf="!isLoading">
+  <mat-accordion>
+    <virtual-scroller #scroll [items]="library">
+      <mat-expansion-panel *ngFor="let artist of scroll.viewPortItems">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            {{artist.name}}
+          </mat-panel-title>
+          <mat-panel-description>
+            Wikidata search not started yet
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <mat-expansion-panel *ngFor="let album of artist.albums">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{album.name}}
+            </mat-panel-title>
+            <mat-panel-description>
+              {{album.release_date}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <mat-action-list>
+            <button *ngFor="let track of album.tracks" mat-list-item (click)="console.log(track.popularity)">{{track.name}}</button>
+          </mat-action-list>
+        </mat-expansion-panel>
+      </mat-expansion-panel>
+    </virtual-scroller>
+  </mat-accordion>
+</div>
