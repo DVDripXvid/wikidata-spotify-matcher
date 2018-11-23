@@ -1,6 +1,7 @@
 import { ByIdQueryOptions, WdkEntity } from './../../models/wikidata-models';
 import { Injectable } from '@angular/core';
 import wdk from 'wikidata-sdk';
+import {wdEdit} from 'src/app/config/wikidata-editapi-config';
 import { propertyIds } from '../../config/wikidata.config';
 import { findSongsByTitleSparql } from './sparql-queries';
 
@@ -21,6 +22,10 @@ export class WikidataService {
 
   getAlbumBySpotifyId(spotifyId: string) {
     return this.getEntityByClaim(propertyIds.spotifyAlbumId, spotifyId);
+  }
+
+  writeTest() {
+    wdEdit.label.set('Q59140759', 'en', 'This is the brand new label!');
   }
 
   async findSongsByTitle(title: string) {
