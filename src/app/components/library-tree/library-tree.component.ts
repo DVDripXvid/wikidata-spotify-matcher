@@ -26,6 +26,7 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
 
   matchingWikidataSongs: WdkSongWrapper[] = [];
   matchFound = true;
+  loadingMatch = false;
 
   private unfilteredLibrary: ArtistWithAlbums[];
   private viewCheckedCallback: any;
@@ -145,6 +146,9 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
       this.matchFound = false;
       return;
     }
+    this.matchFound = true;
+    this.loadingMatch = true;
+
     console.log('Found songs in wikidata for: ' + track.name);
     Object.values(entities).forEach(async e => {
       const song = new WdkSongWrapper(e, this.wdk);
@@ -153,8 +157,8 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
       const artists = song.artists.map(a => a.labels.en).join(', ');
       console.log(`${artists}: ${song.name} (${albums}) - ${song.description}`);
 
-      this.matchFound = true;
       this.matchingWikidataSongs.push(song);
+      this.loadingMatch = false;
 
       for (const asd of this.matchingWikidataSongs) {
         console.log(asd);
@@ -170,5 +174,4 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
     this.wdk.createSong(song.name, song.artists.map(a => a.name), song.id);
     this.onTrackSelected(song);
   }
-
 }

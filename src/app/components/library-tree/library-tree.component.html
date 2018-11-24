@@ -49,11 +49,16 @@
           <mat-card-subtitle>TRACKS</mat-card-subtitle>
         </mat-card-header>
         <div *ngIf="matchFound">
+          <div class="loading-indicator">
+              <mat-spinner *ngIf="loadingMatch"></mat-spinner>
+          </div>
+            
             <mat-list>
                 <mat-list-item *ngFor="let track of matchingWikidataSongs">
                   <span>
                     {{getArtists(track)}}{{':'}}{{' ' + track.name}}
                   </span>
+                  
                 </mat-list-item>
               </mat-list>
         </div>
