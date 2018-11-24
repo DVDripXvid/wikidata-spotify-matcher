@@ -10,10 +10,6 @@ import { findSongsByTitleSparql } from './sparql-queries';
 })
 export class WikidataService {
 
-  constructor() {
-    this.createSong('Onwards', ['Hans Zimmer'], '47RmfgEfQF8U0yli78dbwt');
-  }
-
   createSong(name: string, artists: string[], spotifyId: string) {
     return fetch(backendConfig.host, {
       method: 'POST',
