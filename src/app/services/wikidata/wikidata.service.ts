@@ -1,3 +1,4 @@
+import { backendConfig } from './../../config/backend-config';
 import { ByIdQueryOptions, WdkEntity } from './../../models/wikidata-models';
 import { Injectable } from '@angular/core';
 import wdk from 'wikidata-sdk';
@@ -9,7 +10,27 @@ import { findSongsByTitleSparql } from './sparql-queries';
 })
 export class WikidataService {
 
-  constructor() { }
+  constructor() {
+    this.createSong('Onwards', ['Hans Zimmer'], '47RmfgEfQF8U0yli78dbwt');
+  }
+
+  createSong(name: string, artists: string[], spotifyId: string) {
+    return fetch(backendConfig.host, {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, artists, spotifyId }),
+    });
+  }
+
+  setSpotifyTrackIdForEntity(entityId: string, spotifyId: string) {
+    return fetch(backendConfig.host, {
+      method: 'PUT',
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entityId, spotifyId }),
+    });
+  }
 
   getSongBySpotifyId(spotifyId: string) {
     return this.getEntityByClaim(propertyIds.spotifyTrackId, spotifyId);
