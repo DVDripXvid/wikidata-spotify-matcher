@@ -27,6 +27,7 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
   matchingWikidataSongs: WdkSongWrapper[] = [];
   matchFound = true;
   loadingMatch = false;
+  exactMatch = false;
 
   private unfilteredLibrary: ArtistWithAlbums[];
   private viewCheckedCallback: any;
@@ -59,11 +60,15 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
     } else {
       this.selectedAlbum = null;
     }
+
+    this.selectedTrack = null;
   }
 
   albumClicked(album: AlbumWithTracks) {
     this.waitForUpdate().then(this.scrollToTheRight);
     this.selectedAlbum = album;
+
+    this.selectedTrack = null;
   }
 
   filterArtists(term: string) {
@@ -135,9 +140,18 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
     this.matchingWikidataSongs = [];
     this.selectedTrack = track;
 
+    console.log('Selected track: ', this.selectedTrack);
+
+    this.exactMatch = false;
+
     const entity = await this.wdk.getSongBySpotifyId(track.id);
     if (entity) {
       console.log('Yeah we found a song in wikidata by its spotify id!');
+      const song = new WdkSongWrapper(entity, this.wdk);
+      this.matchingWikidataSongs.push(song);
+
+      this.exactMatch = true;
+      this.waitForUpdate().then(this.scrollToTheRight);
       return;
     }
     const entities = await this.wdk.findSongsByTitle(track.name);
@@ -147,6 +161,7 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
       return;
     }
     this.matchFound = true;
+    this.waitForUpdate().then(this.scrollToTheRight);
     this.loadingMatch = true;
 
     console.log('Found songs in wikidata for: ' + track.name);
@@ -155,14 +170,10 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
       await song.waitData;
       const albums = song.albums.map(a => a.labels.en).join(', ');
       const artists = song.artists.map(a => a.labels.en).join(', ');
-      console.log(`${artists}: ${song.name} (${albums}) - ${song.description}`);
 
       this.matchingWikidataSongs.push(song);
       this.loadingMatch = false;
-
-      for (const asd of this.matchingWikidataSongs) {
-        console.log(asd);
-      }
+      console.log(song);
     });
   }
 
@@ -173,5 +184,19 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
   private createSong(song: SpotifyApi.TrackObjectFull) {
     this.wdk.createSong(song.name, song.artists.map(a => a.name), song.id);
     this.onTrackSelected(song);
+  }
+
+  private isAuthorPresent() {
+    for (const song of this.matchingWikidataSongs) {
+      if (song.artists.length > 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private updateSpotifyIdForSong(song: WdkSongWrapper) {
+
   }
 }
