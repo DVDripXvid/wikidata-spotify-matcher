@@ -38,8 +38,24 @@
         <mat-card-subtitle>ALBUM</mat-card-subtitle>
       </mat-card-header>
       <mat-action-list>
-        <button *ngFor="let track of selectedAlbum.tracks" mat-list-item (click)="trackClicked(track)">{{track.name}}</button>
+        <button *ngFor="let track of selectedAlbum.tracks" mat-list-item (click)="onTrackSelected(track)">{{track.name}}</button>
       </mat-action-list>
+    </mat-card>
+  </div>
+  <div class="column" *ngIf="trackSelected">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Wikidata matches</mat-card-title>
+        <mat-card-subtitle>TRACKS</mat-card-subtitle>
+      </mat-card-header>
+      <mat-list>
+        <mat-list-item *ngFor="let track of matchingWikidataSongs">
+          <div *ngFor="let artist of track.artists">
+            {{artist.labels['en']}}
+          </div>
+          {{track.name}}
+        </mat-list-item>
+      </mat-list>
     </mat-card>
   </div>
 </div>
