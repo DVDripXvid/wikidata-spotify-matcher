@@ -42,25 +42,32 @@
       </mat-action-list>
     </mat-card>
   </div>
-  <div class="column" *ngIf="trackSelected">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Wikidata matches</mat-card-title>
-        <mat-card-subtitle>TRACKS</mat-card-subtitle>
-      </mat-card-header>
-      <div *ngIf="matchFound">
+  <div class="column" *ngIf="selectedTrack">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Wikidata matches</mat-card-title>
+          <mat-card-subtitle>TRACKS</mat-card-subtitle>
+        </mat-card-header>
+        <div *ngIf="matchFound">
+            <mat-list>
+                <mat-list-item *ngFor="let track of matchingWikidataSongs">
+                  <span>
+                    {{getArtists(track)}}{{':'}}{{' ' + track.name}}
+                  </span>
+                </mat-list-item>
+              </mat-list>
+        </div>
+        <div *ngIf="!matchFound">
           <mat-list>
-              <mat-list-item *ngFor="let track of matchingWikidataSongs">
-                <span>
-                  {{getArtists(track)}}{{':'}}{{' ' + track.name}}
-                </span>
-              </mat-list-item>
-            </mat-list>
-      </div>
-      <div *ngIf="!matchFound">
-          <button mat-raised-button>CLICK ME NOW!</button>
-      </div>
-      
-    </mat-card>
-  </div>
+            <mat-list-item>
+                <span>No matching track found in Wikidata!</span>
+            </mat-list-item>
+            <mat-list-item>
+                <button mat-raised-button style="width: 100%" (click)="createSong(selectedTrack)">Create track</button>
+            </mat-list-item>
+          </mat-list>
+        </div>
+      </mat-card>
+    </div>
 </div>
+

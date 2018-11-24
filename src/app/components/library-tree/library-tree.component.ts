@@ -4,6 +4,7 @@ import { spotify } from 'src/app/config/spotify-api.config';
 import { Library } from 'src/app/models/spotify-models';
 import { WikidataService } from 'src/app/services/wikidata/wikidata.service';
 import { WdkSongWrapper } from 'src/app/models/wikidata-models';
+import { AsyncScheduler } from 'rxjs/internal/scheduler/AsyncScheduler';
 
 @Component({
   selector: 'app-library-tree',
@@ -16,6 +17,7 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
 
   selectedArtist: ArtistWithAlbums;
   selectedAlbum: AlbumWithTracks;
+  selectedTrack: SpotifyApi.TrackObjectFull;
   artistSearchTerm = '';
 
   isLoading = false;
@@ -23,7 +25,6 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
   tracks: SpotifyApi.TrackObjectFull[] = [];
 
   matchingWikidataSongs: WdkSongWrapper[] = [];
-  trackSelected = false;
   matchFound = true;
 
   private unfilteredLibrary: ArtistWithAlbums[];
@@ -131,12 +132,11 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
 
   async onTrackSelected(track: SpotifyApi.TrackObjectFull) {
     this.matchingWikidataSongs = [];
-    this.trackSelected = true;
+    this.selectedTrack = track;
 
     const entity = await this.wdk.getSongBySpotifyId(track.id);
     if (entity) {
       console.log('Yeah we found a song in wikidata by its spotify id!');
-      console.log(entity);
       return;
     }
     const entities = await this.wdk.findSongsByTitle(track.name);
@@ -155,15 +155,20 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
 
       this.matchFound = true;
       this.matchingWikidataSongs.push(song);
-      console.log('------------------------');
-      console.log(song);
-      console.log(albums);
-      console.log(artists);
+
+      for (const asd of this.matchingWikidataSongs) {
+        console.log(asd);
+      }
     });
   }
 
   private getArtists(song: WdkSongWrapper) {
     return song.artists.map(a => a.labels['en']).join(', ');
+  }
+
+  private createSong(song: SpotifyApi.TrackObjectFull) {
+    this.wdk.createSong(song.name, song.artists.map(a => a.name), song.id);
+    this.onTrackSelected(song);
   }
 
 }
