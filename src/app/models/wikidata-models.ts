@@ -34,7 +34,7 @@ export class WdkSongWrapper {
     private static readonly relatedPropIds = [
         propertyIds.genre,
         propertyIds.partOf,
-        propertyIds.performer
+        propertyIds.performer,
     ];
     private relatedEntites: WdkEntity[] = [];
     public readonly waitData: Promise<any>;
@@ -84,6 +84,13 @@ export class WdkSongWrapper {
         return ids
             ? this.findEntitesByIds(ids)
             : [];
+    }
+
+    get spotifyId() {
+        const ids = this.entity.claims[propertyIds.spotifyTrackId];
+        return this.entity.claims[propertyIds.spotifyTrackId]
+            ? ids[0]
+            : null;
     }
 
     private findEntitesByIds(ids: string[]) {
