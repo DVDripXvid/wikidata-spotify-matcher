@@ -49,19 +49,23 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>Wikidata matches</mat-card-title>
-        <mat-card-subtitle>{{selectedTrack.name}}</mat-card-subtitle>
+        <mat-card-subtitle>{{selectedArtist.name}}: {{selectedTrack.name}}</mat-card-subtitle>
       </mat-card-header>
 
       <div *ngIf="matchFound && !exactMatch">
         <mat-list>
           <mat-list-item *ngFor="let track of matchingWikidataSongs">
-            <span>
-              {{getArtists(track)}}{{':'}}{{' ' + track.name}}
-            </span>
             <div>
-              <button mat-raised-button (click)="updateSpotifyIdForSong(track)" class="pull-right">Approve</button>
+              {{getArtists(track)}}{{':'}}{{' ' + track.name}}
             </div>
-
+            <div class="auto-align">
+              <button mat-raised-button color="accent" (click)="updateSpotifyIdForSong(track)">Yep, this is it.</button>
+            </div>
+          </mat-list-item>
+          <mat-list-item>
+            <button mat-raised-button color="primary" style="width: 100%" (click)="createSong(selectedTrack)">
+              Can't find your track? Click here to create a new one in Wikidata.
+            </button>
           </mat-list-item>
         </mat-list>
       </div>
@@ -85,11 +89,13 @@
           <mat-list-item>
             <span>No matching track found in Wikidata!</span>
           </mat-list-item>
+          <mat-list-item>
+            <button mat-raised-button color="primary" style="width: 100%" (click)="createSong(selectedTrack)">
+              Save this to wikidata.
+            </button>
+          </mat-list-item>
         </mat-list>
       </div>
-      <mat-list-item *ngIf="!exactMatch">
-        <button mat-raised-button style="width: 100%" (click)="createSong(selectedTrack)">Create track</button>
-      </mat-list-item>
     </mat-card>
   </div>
 
