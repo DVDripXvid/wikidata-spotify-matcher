@@ -93,6 +93,10 @@ export class WdkSongWrapper {
             : null;
     }
 
+    get entityId() {
+        return this.entity.id;
+    }
+
     private findEntitesByIds(ids: string[]) {
         return this.relatedEntites.filter(e => ids.includes(e.id));
     }

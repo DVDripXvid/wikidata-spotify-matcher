@@ -3,6 +3,9 @@
   <h3>Please be patient while we are getting your spotify library</h3>
 </div>
 <div *ngIf="!isLoading" class="row">
+  <div class="loading-indicator">
+    <mat-spinner *ngIf="wikiDetailsLoadMask"></mat-spinner>
+  </div>
   <div class="column">
     <mat-card>
       <mat-card-header>
@@ -50,20 +53,11 @@
       </mat-card-header>
 
       <div *ngIf="matchFound && !exactMatch">
-        <div class="loading-indicator">
-          <mat-spinner *ngIf="loadingMatch"></mat-spinner>
-        </div>
-
         <mat-list>
           <mat-list-item *ngFor="let track of matchingWikidataSongs">
             <span>
               {{getArtists(track)}}{{':'}}{{' ' + track.name}}
             </span>
-            <div *ngIf="!isAuthorPresent()">
-              <mat-list-item>
-                <span>{{matchingWikidataSongs[0].description}}</span>
-              </mat-list-item>
-            </div>
             <div>
               <button mat-raised-button (click)="updateSpotifyIdForSong(track)" class="pull-right">Approve</button>
             </div>
@@ -72,7 +66,7 @@
         </mat-list>
       </div>
 
-      <div *ngIf="matchFound && exactMatch">
+      <div *ngIf="matchFound && exactMatch && matchingWikidataSongs[0]">
         <mat-list>
           <mat-list-item>
             <span>Track found in Wikidata! It is an exact match!</span>
@@ -86,7 +80,7 @@
         </mat-list>
       </div>
 
-      <div *ngIf="!matchFound">
+      <div *ngIf="!matchFound && !exactMatch">
         <mat-list>
           <mat-list-item>
             <span>No matching track found in Wikidata!</span>

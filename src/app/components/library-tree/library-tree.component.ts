@@ -4,7 +4,6 @@ import { spotify } from 'src/app/config/spotify-api.config';
 import { Library } from 'src/app/models/spotify-models';
 import { WikidataService } from 'src/app/services/wikidata/wikidata.service';
 import { WdkSongWrapper } from 'src/app/models/wikidata-models';
-import { AsyncScheduler } from 'rxjs/internal/scheduler/AsyncScheduler';
 
 @Component({
   selector: 'app-library-tree',
@@ -21,12 +20,12 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
   artistSearchTerm = '';
 
   isLoading = false;
+  wikiDetailsLoadMask = false;
   library: ArtistWithAlbums[] = [];
   tracks: SpotifyApi.TrackObjectFull[] = [];
 
   matchingWikidataSongs: WdkSongWrapper[] = [];
-  matchFound = true;
-  loadingMatch = false;
+  matchFound = false;
   exactMatch = false;
 
   private unfilteredLibrary: ArtistWithAlbums[];
@@ -139,10 +138,9 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
   async onTrackSelected(track: SpotifyApi.TrackObjectFull) {
     this.matchingWikidataSongs = [];
     this.selectedTrack = track;
+    this.wikiDetailsLoadMask = true;
 
     console.log('Selected track: ', this.selectedTrack);
-
-    this.exactMatch = false;
 
     const entity = await this.wdk.getSongBySpotifyId(track.id);
     if (entity) {
@@ -150,30 +148,36 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
       const song = new WdkSongWrapper(entity, this.wdk);
       this.matchingWikidataSongs.push(song);
 
-      this.exactMatch = true;
+      console.log('The song:', song);
+
       this.waitForUpdate().then(this.scrollToTheRight);
+      this.wikiDetailsLoadMask = false;
+      this.matchFound = true;
+      this.exactMatch = true;
       return;
     }
     const entities = await this.wdk.findSongsByTitle(track.name);
     if (!entities || entities.length === 0) {
       console.warn('Not found in wikidata: ' + track.name);
+
+      this.waitForUpdate().then(this.scrollToTheRight);
+      this.wikiDetailsLoadMask = false;
       this.matchFound = false;
+      this.exactMatch = false;
       return;
     }
-    this.matchFound = true;
-    this.waitForUpdate().then(this.scrollToTheRight);
-    this.loadingMatch = true;
-
     console.log('Found songs in wikidata for: ' + track.name);
     Object.values(entities).forEach(async e => {
       const song = new WdkSongWrapper(e, this.wdk);
       await song.waitData;
-      const albums = song.albums.map(a => a.labels.en).join(', ');
-      const artists = song.artists.map(a => a.labels.en).join(', ');
 
       this.matchingWikidataSongs.push(song);
-      this.loadingMatch = false;
-      console.log(song);
+      this.waitForUpdate().then(this.scrollToTheRight);
+      this.wikiDetailsLoadMask = false;
+      this.matchFound = true;
+      this.exactMatch = false;
+
+      console.log('The song:', song);
     });
   }
 
@@ -182,21 +186,26 @@ export class LibraryTreeComponent implements OnInit, AfterViewChecked {
   }
 
   private createSong(song: SpotifyApi.TrackObjectFull) {
-    this.wdk.createSong(song.name, song.artists.map(a => a.name), song.id);
-    this.onTrackSelected(song);
-  }
-
-  private isAuthorPresent() {
-    for (const song of this.matchingWikidataSongs) {
-      if (song.artists.length > 0) {
-        return true;
-      }
-    }
-
-    return false;
+    this.wikiDetailsLoadMask = true;
+    this.wdk.createSong(song.name, song.artists.map(a => a.name), song.id).then(onSuccess => {
+      this.wikiDetailsLoadMask = false;
+      this.onTrackSelected(song);
+    }).catch(onError => {
+      console.error('Failed to create song:', song);
+    });
   }
 
   private updateSpotifyIdForSong(song: WdkSongWrapper) {
+    this.wikiDetailsLoadMask = true;
+    this.wdk.setSpotifyTrackIdForEntity(song.entityId, this.selectedTrack.id).then(onSuccess => {
+      this.wikiDetailsLoadMask = false;
+      this.onTrackSelected(this.selectedTrack);
+    }).catch(onError => {
+      console.error('Failed to update song:', song);
+    });
+  }
 
+  private hasArtist(song: WdkSongWrapper) {
+    return song.artists !== undefined && song.artists.length > 0;
   }
 }
